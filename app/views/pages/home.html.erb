@@ -1,0 +1,250 @@
+ <head>
+    <title>Täglich grüßt Lino</title>
+    <% require 'date' 
+    dayday = Date.today.strftime("%A") %>
+    <%
+    if dayday == "Monday"
+        mon_phrases = ["ich wünsche dir einen ganz wunderbaren Start in die Woche!",
+                        "hab einen schönen Montag",
+                        "hab einen schönen Start in die Woche!"]
+        phrase = mon_phrases.sample
+    elsif dayday == "Tuesday" 
+        tue_phrases = ["ich schicke dir einen dicken Kuss!",
+                        "fühl dich ganz fest gedrückt!",
+                        "habe eine schönen Dienstag!"]
+        phrase = tue_phrases.sample
+    elsif dayday == "Wednesday"
+        wed_phrases = ["ich wünsche dir einen ereignisreichen Mittwoch!",
+                        "genieß deinen Mittwoch!",
+                        "fühl dich ganz fest umarmt!", 
+                        "die Hälfte der Woche ist vorüber!"]
+        phrase = wed_phrases.sample
+    elsif dayday == "Thursday"
+        thurs_phrases = ["das Wochenende naht!",
+                        "genieß deinen Donnerstag!",
+                        "fühl dich fest gekuschelt!"]
+        phrase = thurs_phrases.sample
+    elsif dayday == "Friday"
+        fri_phrases = ["juhu! Gleich ist Wochenende!",
+                        "nur noch ein paar Stunden bis ins Wochenende!",
+                        "ich hoffe du hast einen wunderschönen Freitag!"]
+        phrase = fri_phrases.sample
+    elsif dayday == "Saturday"
+        sat_phrases = ["hoch die Hände, Wochenende!",
+                        "ich hoffe du hast schöne Wochenendpläne!",
+                        "nutz das Wochenende um ordentlich zu entspannen!"]
+        phrase = sat_phrases.sample
+    elsif dayday == "Sunday"
+        sun_phrases = ["Sonntag ist Kuscheltag!",
+                        "erhol dich gut an diesem Sonntag!",
+                        "heute vielleicht ein Tatort-Abend?"]
+        phrase = sun_phrases.sample
+    end
+    %>
+
+    <%
+    nicknames = ["Schatz", "Schnups", "Schnupsi", "Bambi", "Butzel"]
+    name = nicknames.sample
+    %>
+
+    <%
+
+    require 'json'
+    require 'open-uri'
+    require_relative './api_key.rb'
+
+    key_api = $api_key
+
+    def get_coord(key, city)
+        
+        url = "http://api.openweathermap.org/geo/1.0/direct?q=#{city}&limit=1&appid=" + key
+        
+        file = URI.open(url)
+        contents = file.read
+        
+        lat_coord = JSON.parse(contents)[0]["lat"]
+        lon_coord = JSON.parse(contents)[0]["lon"]
+
+        return [lat_coord, lon_coord]
+    end
+
+    barca_coord = get_coord(key_api, "Barcelona")
+    fn_coord = get_coord(key_api, "Friedrichshafen")
+
+
+    # WEATHER API CALL
+
+    def get_weather(key, lat, lon)
+
+        url_weather = "https://api.openweathermap.org/data/2.5/onecall?lat=#{lat}&lon=#{lon}&exclude=current,minutely,hourly,alerts&appid=#{key}"
+        file = URI.open(url_weather)
+        contents = file.read
+        weather_kalvin = JSON.parse(contents)["daily"][0]["temp"]["day"]
+        weather_celsius = (weather_kalvin-273.15).round
+        icon_id = JSON.parse(contents)["daily"][0]["weather"][0]["icon"]
+        
+        return [weather_celsius, icon_id]
+    end 
+    barca_data = get_weather(key_api, barca_coord[0], barca_coord[1])
+    fn_data = get_weather(key_api, fn_coord[0], fn_coord[1])
+
+    degrees_barca = barca_data[0]
+    icon_barca = "https://openweathermap.org/img/wn/#{barca_data[1]}@2x.png"
+
+
+    degrees_fn = fn_data[0]
+    icon_fn = "https://openweathermap.org/img/wn/#{fn_data[1]}@2x.png"
+
+    %>
+
+    <%
+    time = Time.now.strftime("%d/%m/%Y %H:%M").split[1]
+    anniversary = Date.new(2020,6,20)
+    today = Date.today
+
+    if anniversary.day > today.day
+        day = anniversary.day - today.day
+        if today.month <= anniversary.month
+            month_range = today.month - anniversary.month - 1
+            year = today.year - anniversary.year - 1
+            month = 12 + month_range
+        else
+            month_range = today.month - anniversary.month
+            year = today.year - anniversary.year
+            month = 12 - month_range -1
+        end
+    elsif anniversary.day == today.day
+        day = 0
+        month = today.month - anniversary.month
+        if month < 0
+            year = today.year - anniversary.year - 1
+            month = 12 - month
+        else 
+            year = today.year - anniversary.year
+        end
+    else
+        day = today.day - anniversary.day
+        month = today.month - anniversary.month
+        if month < 0
+            year = today.year - anniversary.year - 1
+            month = 12 - month
+        else 
+            year = today.year - anniversary.year
+        end
+    end
+    %>
+    <%
+    pictures_sweet = ["https://res.cloudinary.com/dwyjybcee/image/upload/v1655250637/fina_me/FullSizeRender_bvldiv.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250589/fina_me/IMG_3270_tc6bnh.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250588/fina_me/IMG_0579_znx3ee.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250584/fina_me/IMG_8379_p81qqk.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250583/fina_me/6fdb911f-b310-45ae-b779-d26ecd14d95d_rfxrmp.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250584/fina_me/IMG_8558_pvxfwm.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250581/fina_me/ff72016c-5183-4afa-9c69-b91c825149d5_epnypk.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250564/fina_me/38f560e0-ae76-425c-a8a9-76b849c9f9f8_wingev.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250627/fina_me/IMG_5460_pene7z.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250596/fina_me/IMG_3346_dhtkpd.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250591/fina_me/IMG_3381_keho24.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250590/fina_me/IMG_3459_fagwp2.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250590/fina_me/IMG_3082_n7sjve.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250589/fina_me/IMG_7925_pn3ni8.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250587/fina_me/IMG_0826_tbkhx6.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250585/fina_me/IMG_9722_cciap1.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250584/fina_me/IMG_8374_hnply8.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250586/fina_me/IMG_0129_hlq86o.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250597/fina_me/IMG_1089_hiqg9o.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250582/fina_me/IMG_6841_pzh9lt.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278951/fina_me/IMG_3894_jukltw.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278945/fina_me/IMG_3865_qzs5cr.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278942/fina_me/IMG_3861_khaza7.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278937/fina_me/IMG_3849_qjdesf.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250551/fina_me/5ACEB691-F517-4DF0-B72A-A345A0C8A0BF_lt1yrd.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250562/fina_me/EC686A0F-8FB6-49A8-86C4-1013209732C3_bowhbh.jpg"]
+
+    home_pic = pictures_sweet.sample
+
+    pictures_secret = ["https://res.cloudinary.com/dwyjybcee/image/upload/v1655250609/fina_me/IMG_8584_u9rupu.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250598/fina_me/IMG_1151_owhgs6.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250586/fina_me/IMG_9750_kpzmws.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250585/fina_me/IMG_9674_gn9fjq.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250550/fina_me/IMG_0183_jgukx6.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250582/fina_me/IMG_7177_ynoji3.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250643/fina_me/FullSizeRender_wvjf8z.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250582/fina_me/IMG_6441_phyvrf.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278922/fina_me/IMG_3818_jolvdv.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278900/fina_me/IMG_3763_tkpwos.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278884/fina_me/IMG_3727_escxga.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1656278868/fina_me/IMG_3673_g1yzhs.jpg",
+    "https://res.cloudinary.com/dwyjybcee/image/upload/v1655250656/fina_me/IMG_6904_okvyug.jpg"]
+
+    secret_pic = pictures_secret.sample
+    %>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fascinate&display=swap');
+    </style>
+</head>
+
+
+
+
+
+
+
+<body>
+    <div class="banner">
+        <div class="image">
+            <img alt="love" src=<%=home_pic%> class="image">
+        </div>
+        <div class="input">
+            <div class="container">
+                <div class="header">
+                    <div>
+                        <p class="secrets">Geheimnis</p>
+                        <img alt="love" src=<%=secret_pic%> class="imagefront">
+                    </div>
+                    <div>
+                        <p class="dat"><%=dayday%>, <%=time%></p>
+                    </div>
+                </div>
+                <h1>Hallo <%= name %>,</h1> 
+                <p class="phrase"><%= phrase %></p>
+            </div>
+            <div class="container_weather">
+                <div class="card-container">
+                    <div class="card-product">
+                        <img alt="weather" src=<%= icon_fn %> class="card-product img">
+                        <div class="card-product-infos">
+                            <p class="city">Friedrichshafen</p>
+                            <p class="temp"><%= degrees_fn%> Grad</p>
+                        </div>
+                    </div>
+                    <div class="card-product">
+                        <img alt="weather" src=<%= icon_barca %> class="card-product img">
+                        <div class="card-product-infos">
+                            <p class="city">Barcelona</p>
+                            <p class="temp"><%= degrees_barca%> Grad</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="anni-container">
+        <div class="anniversary">
+            <h2 class="anni_font"><%= year %></h2>
+            <p class="number_font">Jahre</p>
+        </div>
+        <div class="anniversary">
+            <h2 class="anni_font"><%= month %></h2>
+            <p class="number_font">Monate</p>
+        </div>
+        <div class="anniversary">
+            <h2 class="anni_font"><%= day %></h2>
+            <p class="number_font">Tage</p>
+        </div>
+    </div>
+<body>
